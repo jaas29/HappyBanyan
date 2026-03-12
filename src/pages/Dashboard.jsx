@@ -1,3 +1,8 @@
+import { signOut } from 'firebase/auth'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { auth } from '../firebase/config'
+import { useNavigate } from 'react-router-dom'
+
 // ── Icons ──────────────────────────────────────────────────────────────
 
 
@@ -113,6 +118,14 @@ const navItems = [
 // ── Dashboard ───────────────────────────────────────────────────────────
 
 export default function Dashboard() {
+  const [user] = useAuthState(auth)
+  const navigate = useNavigate()
+
+  async function handleLogout() {
+    await signOut(auth)
+    navigate('/login')
+  }
+
   return (
     <div className="h-screen bg-[#FFF8F0] flex flex-col overflow-hidden">
 
@@ -121,8 +134,10 @@ export default function Dashboard() {
         <div className="flex items-center gap-3">
           <span className="text-2xl font-bold text-gray-900">Happy Banyan</span>
         </div>
-        <span className="text-2xl font-semibold text-gray-700">Hi, Olivia!</span>
-        <button className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-500 font-medium">
+        <span className="text-2xl font-semibold text-gray-700">
+          Hi, {user?.displayName || user?.email || 'Friend'}!
+        </span>
+        <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-500 font-medium">
           <LogoutIcon />
           <span className="text-base">Log out</span>
         </button>
