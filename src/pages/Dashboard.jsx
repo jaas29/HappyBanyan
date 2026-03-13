@@ -3,7 +3,7 @@ import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '../firebase/config'
 import { useNavigate } from 'react-router-dom'
 
-// ── Icons ──────────────────────────────────────────────────────────────
+// Icons
 
 
 const LogoutIcon = () => (
@@ -97,7 +97,7 @@ const SettingsNavIcon = ({ active }) => (
   </svg>
 )
 
-// ── Data ────────────────────────────────────────────────────────────────
+// Data
 
 const tiles = [
   { label: 'Messages',     color: '#7C3AED', Icon: MessageIcon     },
@@ -115,7 +115,7 @@ const navItems = [
   { label: 'Settings', Icon: SettingsNavIcon, active: false },
 ]
 
-// ── Dashboard ───────────────────────────────────────────────────────────
+// Dashboard
 
 export default function Dashboard() {
   const [user] = useAuthState(auth)
@@ -184,6 +184,7 @@ export default function Dashboard() {
                 key={label}
                 onClick={() => {
                   if (label === 'Weather') navigate('/weather')
+                  if (label === 'My Tasks') navigate('/tasks')
                 }}
                 style={{ backgroundColor: color }}
                 className="rounded-2xl py-10 flex flex-col items-center justify-center gap-4 cursor-pointer hover:opacity-90 active:scale-95 transition-all"
