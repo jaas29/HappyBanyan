@@ -182,6 +182,9 @@ export default function Dashboard() {
             {tiles.map(({ label, color, Icon }) => (
               <button
                 key={label}
+                onClick={() => {
+                  if (label === 'Weather') navigate('/weather')
+                }}
                 style={{ backgroundColor: color }}
                 className="rounded-2xl py-10 flex flex-col items-center justify-center gap-4 cursor-pointer hover:opacity-90 active:scale-95 transition-all"
               >
