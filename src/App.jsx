@@ -4,6 +4,7 @@ import { auth } from './firebase/config'
 import ProtectedRoute from './components/ProtectedRoute'
 import Dashboard from './pages/Dashboard'
 import Weather from './pages/Weather'
+import Tasks from './pages/Tasks'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
@@ -32,6 +33,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Weather />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/tasks"
+          element={
+            <ProtectedRoute>
+              <Tasks />
             </ProtectedRoute>
           }
         />
