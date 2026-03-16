@@ -10,6 +10,7 @@ export default function Register() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [role, setRole] = useState('caretaker')
+  const [familyCode, setFamilyCode] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
@@ -26,6 +27,10 @@ export default function Register() {
       setError('Password must be at least 6 characters.')
       return
     }
+    if (!familyCode.trim()) {
+      setError('Please enter a family code to connect with your partner.')
+      return
+    }
 
     setLoading(true)
     try {
@@ -37,6 +42,7 @@ export default function Register() {
         name,
         email,
         role,
+        familyCode: familyCode.trim().toLowerCase(),
         groupId: null,
         completedTasks: 0,
         createdAt: serverTimestamp(),
@@ -118,6 +124,19 @@ export default function Register() {
                 Elder
               </button>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-base font-medium text-gray-700 mb-1">Family Code</label>
+            <input
+              type="text"
+              value={familyCode}
+              onChange={(e) => setFamilyCode(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 text-lg focus:outline-none focus:ring-2 focus:ring-[#7C3AED] focus:border-transparent"
+              placeholder="e.g. olivia-emma-2026"
+            />
+            <p className="text-sm text-gray-400 mt-1">Share this code with your family member so you can connect.</p>
           </div>
 
           <div>

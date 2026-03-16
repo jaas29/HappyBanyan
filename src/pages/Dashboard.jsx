@@ -183,6 +183,7 @@ export default function Dashboard() {
               <button
                 key={label}
                 onClick={() => {
+                  if (label === 'Messages') navigate('/messages')
                   if (label === 'Weather') navigate('/weather')
                   if (label === 'My Tasks') navigate('/tasks')
                 }}
