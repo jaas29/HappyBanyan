@@ -6,6 +6,8 @@ import Dashboard from './pages/Dashboard'
 import Weather from './pages/Weather'
 import Tasks from './pages/Tasks'
 import Messages from './pages/Messages'
+import QuickLinks from './pages/QuickLinks'
+import SharedTasks from './pages/SharedTasks'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
@@ -52,6 +54,24 @@ function App() {
           element={
             <ProtectedRoute>
               <Messages />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/quick-links"
+          element={
+            <ProtectedRoute>
+              <QuickLinks />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/shared-tasks"
+          element={
+            <ProtectedRoute>
+              <SharedTasks />
             </ProtectedRoute>
           }
         />

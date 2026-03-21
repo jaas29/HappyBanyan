@@ -186,6 +186,8 @@ export default function Dashboard() {
                   if (label === 'Messages') navigate('/messages')
                   if (label === 'Weather') navigate('/weather')
                   if (label === 'My Tasks') navigate('/tasks')
+                  if (label === 'Quick Links') navigate('/quick-links')
+                  if (label === 'Shared Tasks') navigate('/shared-tasks')
                 }}
                 style={{ backgroundColor: color }}
                 className="rounded-2xl py-10 flex flex-col items-center justify-center gap-4 cursor-pointer hover:opacity-90 active:scale-95 transition-all"
