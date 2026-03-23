@@ -1,7 +1,11 @@
+import { useState, useEffect } from 'react'
 import { signOut } from 'firebase/auth'
 import { useAuthState } from 'react-firebase-hooks/auth'
-import { auth } from '../firebase/config'
+import { auth, db } from '../firebase/config'
+import { collection, query, where, getDocs } from 'firebase/firestore'
 import { useNavigate } from 'react-router-dom'
+import DailyCheckIn from '../components/DailyCheckIn'
+
 
 // Icons
 
@@ -120,6 +124,20 @@ const navItems = [
 export default function Dashboard() {
   const [user] = useAuthState(auth)
   const navigate = useNavigate()
+  const [showCheckIn, setShowCheckIn] = useState(false)
+
+  useEffect(() => {
+    if (!user) return
+    const today = new Date().toISOString().slice(0, 10)
+    const q = query(
+      collection(db, 'checkIns'),
+      where('userId', '==', user.uid),
+      where('date', '==', today)
+    )
+    getDocs(q).then((snap) => {
+      if (snap.empty) setShowCheckIn(true)
+    })
+  }, [user])
 
   async function handleLogout() {
     await signOut(auth)
@@ -128,6 +146,10 @@ export default function Dashboard() {
 
   return (
     <div className="h-screen bg-[#FFF8F0] flex flex-col overflow-hidden">
+
+      {showCheckIn && (
+        <DailyCheckIn userId={user?.uid} onClose={() => setShowCheckIn(false)} />
+      )}
 
       {/* ── Top Header ── */}
       <header className="flex items-center justify-between px-8 py-4 bg-white border-b border-gray-200 shrink-0">
