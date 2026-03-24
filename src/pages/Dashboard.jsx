@@ -2,9 +2,28 @@ import { useState, useEffect } from 'react'
 import { signOut } from 'firebase/auth'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth, db } from '../firebase/config'
-import { collection, query, where, getDocs } from 'firebase/firestore'
+import { collection, query, where, getDocs, doc, onSnapshot } from 'firebase/firestore'
 import { useNavigate } from 'react-router-dom'
 import DailyCheckIn from '../components/DailyCheckIn'
+
+import treeSprout from '../assets/tree/stage1-sprout.png'
+import treeYoung from '../assets/tree/stage2-young.png'
+import treeGrowing from '../assets/tree/stage3-growing.png'
+import treeFull from '../assets/tree/stage4-full.png'
+
+const TREE_STAGES = [
+  { min: 0,  image: treeSprout,  label: 'Sprout',         message: 'Your Banyan just sprouted! Complete tasks to help it grow.', size: 'w-44 h-44' },
+  { min: 6,  image: treeYoung,   label: 'Young Tree',     message: 'Your Banyan is growing nicely! Keep it up.',                size: 'w-56 h-56' },
+  { min: 16, image: treeGrowing, label: 'Growing Banyan',  message: 'Your Banyan is getting strong! Almost there.',             size: 'w-72 h-72' },
+  { min: 31, image: treeFull,    label: 'Full Banyan',     message: 'Your Banyan is fully grown and thriving!',                 size: 'w-96 h-96' },
+]
+
+function getTreeStage(count) {
+  for (let i = TREE_STAGES.length - 1; i >= 0; i--) {
+    if (count >= TREE_STAGES[i].min) return TREE_STAGES[i]
+  }
+  return TREE_STAGES[0]
+}
 
 
 // Icons
@@ -125,6 +144,18 @@ export default function Dashboard() {
   const [user] = useAuthState(auth)
   const navigate = useNavigate()
   const [showCheckIn, setShowCheckIn] = useState(false)
+  const [completedTasks, setCompletedTasks] = useState(0)
+
+  // Real-time listener for completedTasks count
+  useEffect(() => {
+    if (!user) return
+    const unsub = onSnapshot(doc(db, 'users', user.uid), (snap) => {
+      if (snap.exists()) {
+        setCompletedTasks(snap.data().completedTasks || 0)
+      }
+    })
+    return unsub
+  }, [user])
 
   useEffect(() => {
     if (!user) return
@@ -138,6 +169,8 @@ export default function Dashboard() {
       if (snap.empty) setShowCheckIn(true)
     })
   }, [user])
+
+  const treeStage = getTreeStage(completedTasks)
 
   async function handleLogout() {
     await signOut(auth)
@@ -186,21 +219,48 @@ export default function Dashboard() {
         </aside>
 
         {/* ── Main Content ── */}
-        <main className="flex-1 overflow-y-auto px-10 py-8 space-y-6">
+        <main className="flex-1 overflow-y-auto px-10 py-8 space-y-5">
 
-          {/* Banyan Card */}
-          <div className="bg-[#d1fae5] rounded-2xl px-10 py-8 flex items-center gap-8">
-            <div className="flex flex-col gap-2">
-              <h2 className="text-3xl font-bold text-gray-900">Your Banyan</h2>
-              <p className="text-[#166534] text-lg">Your Banyan is fully grown!</p>
-              <div className="mt-3 bg-white rounded-full px-6 py-2 inline-block shadow-sm self-start">
-                <span className="font-semibold text-gray-800 text-base">Tasks Completed: 10</span>
-              </div>
+          {/* Hero Tree Scene */}
+          <section
+            className="relative rounded-3xl overflow-hidden px-8 py-10 flex flex-col items-center text-center"
+            style={{
+              background: 'linear-gradient(to bottom, #ecfdf5 0%, #d1fae5 40%, #a7f3d0 70%, #6ee7b7 100%)',
+              minHeight: '340px',
+            }}
+          >
+            <h2 className="text-2xl font-bold text-emerald-900 mb-2">Your Banyan</h2>
+
+            <div key={treeStage.label} className="tree-appear">
+              <img
+                src={treeStage.image}
+                alt={treeStage.label}
+                className={`${treeStage.size} object-contain drop-shadow-lg tree-float`}
+              />
             </div>
-          </div>
+
+            <p className="text-xl font-semibold text-emerald-800 mt-3">{treeStage.label}</p>
+            <p className="text-lg text-emerald-700 mt-1 max-w-md">{treeStage.message}</p>
+
+            <div className="mt-3 bg-white/80 backdrop-blur-sm rounded-full px-6 py-2 shadow-sm">
+              <span className="font-semibold text-gray-800 text-lg">
+                {completedTasks} tasks completed
+              </span>
+            </div>
+
+            <p className="text-base text-emerald-700/70 italic mt-4">
+              "Every day you grow a little better!"
+            </p>
+
+            {/* Ground strip */}
+            <div
+              className="absolute bottom-0 left-0 right-0 h-3"
+              style={{ background: 'linear-gradient(to bottom, #86efac, #4ade80)' }}
+            />
+          </section>
 
           {/* Feature Tiles */}
-          <div className="grid grid-cols-3 gap-5">
+          <div className="grid grid-cols-3 gap-4">
             {tiles.map(({ label, color, Icon }) => (
               <button
                 key={label}
@@ -212,20 +272,16 @@ export default function Dashboard() {
                   if (label === 'Shared Tasks') navigate('/shared-tasks')
                 }}
                 style={{ backgroundColor: color }}
-                className="rounded-2xl py-10 flex flex-col items-center justify-center gap-4 cursor-pointer hover:opacity-90 active:scale-95 transition-all"
+                className="rounded-2xl py-6 flex flex-col items-center justify-center gap-3 cursor-pointer hover:opacity-90 active:scale-95 transition-all"
               >
                 <Icon />
-                <span className="text-white font-bold text-xl text-center leading-snug px-2">
+                <span className="text-white font-bold text-lg text-center leading-snug px-2">
                   {label}
                 </span>
               </button>
             ))}
           </div>
 
-          {/* Daily Quote */}
-          <div className="bg-white rounded-2xl px-8 py-6 text-center shadow-sm">
-            <p className="text-xl text-gray-500 italic">"Every day you growth better!"</p>
-          </div>
 
         </main>
       </div>
