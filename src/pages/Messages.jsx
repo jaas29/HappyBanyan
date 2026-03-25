@@ -111,7 +111,6 @@ export default function Messages() {
     const conversationId = ids.join('_')
 
     try {
-      console.log('Sending message...', { conversationId, senderId: user.uid })
       const docRef = await addDoc(collection(db, 'messages'), {
         conversationId,
         senderId: user.uid,
@@ -119,7 +118,6 @@ export default function Messages() {
         text: text.trim(),
         timestamp: serverTimestamp(),
       })
-      console.log('Message sent:', docRef.id)
       setText('')
       inputRef.current?.focus()
     } catch (err) {

@@ -132,10 +132,10 @@ const tiles = [
 ]
 
 const navItems = [
-  { label: 'Home',     Icon: HomeNavIcon,     active: true  },
-  { label: 'Messages', Icon: MsgNavIcon,      active: false },
-  { label: 'Tasks',    Icon: TasksNavIcon,    active: false },
-  { label: 'Settings', Icon: SettingsNavIcon, active: false },
+  { label: 'Home',     Icon: HomeNavIcon,     active: true,  path: '/'         },
+  { label: 'Messages', Icon: MsgNavIcon,      active: false, path: '/messages' },
+  { label: 'Tasks',    Icon: TasksNavIcon,    active: false, path: '/tasks'    },
+  { label: 'Settings', Icon: SettingsNavIcon, active: false, path: null        },
 ]
 
 // Dashboard
@@ -203,14 +203,15 @@ export default function Dashboard() {
 
         {/* ── Sidebar ── */}
         <aside className="w-56 bg-white border-r border-gray-200 flex flex-col py-8 px-4 gap-2 shrink-0">
-          {navItems.map(({ label, Icon, active }) => (
+          {navItems.map(({ label, Icon, active, path }) => (
             <button
               key={label}
+              onClick={() => path && navigate(path)}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-base transition-colors ${
                 active
                   ? 'bg-purple-50 text-[#7C3AED]'
                   : 'text-gray-500 hover:bg-gray-50'
-              }`}
+              } ${path ? 'cursor-pointer' : 'cursor-default opacity-50'}`}
             >
               <Icon active={active} />
               {label}
