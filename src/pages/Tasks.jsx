@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import {
   collection, addDoc, updateDoc, deleteDoc,
-  doc, onSnapshot, query, where, serverTimestamp, increment,
+  doc, onSnapshot, query, where, serverTimestamp, increment, getDoc, getDocs,
 } from 'firebase/firestore'
 import { auth, db } from '../firebase/config'
 import toast from 'react-hot-toast'
+import emailjs from '@emailjs/browser'
 
 // Constants 
 
@@ -94,6 +95,13 @@ const CloseIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
     <line x1="18" y1="6" x2="6" y2="18" />
     <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+)
+
+const MailIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="5" width="18" height="14" rx="2" />
+    <polyline points="3,7 12,13 21,7" />
   </svg>
 )
 
@@ -296,6 +304,10 @@ export default function Tasks() {
   const [showModal, setShowModal] = useState(false)
   const [editingTask, setEditingTask] = useState(null) // null = adding new
   const [saving, setSaving] = useState(false)
+  const [emailSendingTo, setEmailSendingTo] = useState(null) // null | 'me' | 'partner'
+
+  const [partner, setPartner] = useState(null)
+  const [partnerStatus, setPartnerStatus] = useState('idle') // 'idle' | 'loading' | 'done'
 
   // Real-time Firestore listener
   useEffect(() => {
@@ -316,6 +328,45 @@ export default function Tasks() {
       setTasks(data)
     })
     return unsub
+  }, [user])
+
+  // Find partner (other user with the same familyCode)
+  useEffect(() => {
+    let cancelled = false
+
+    async function run() {
+      if (!user) {
+        setPartner(null)
+        setPartnerStatus('idle')
+        return
+      }
+
+      setPartner(null)
+      setPartnerStatus('loading')
+
+      try {
+        const myDoc = await getDoc(doc(db, 'users', user.uid))
+        if (!myDoc.exists()) return
+
+        const familyCode = myDoc.data()?.familyCode
+        if (!familyCode) return
+
+        const snap = await getDocs(query(collection(db, 'users'), where('familyCode', '==', familyCode)))
+        const partnerDoc = snap.docs.find((d) => d.id !== user.uid)
+        if (partnerDoc && !cancelled) {
+          setPartner({ uid: partnerDoc.id, ...partnerDoc.data() })
+        }
+      } catch (e) {
+        console.error('Partner lookup failed:', e)
+      } finally {
+        if (!cancelled) setPartnerStatus('done')
+      }
+    }
+
+    run()
+    return () => {
+      cancelled = true
+    }
   }, [user])
 
   // Filtered tasks by view 
@@ -416,6 +467,57 @@ export default function Tasks() {
     }
   }
 
+  async function handleEmailTasks(target) {
+    if (!user) return
+    if (emailSendingTo) return
+
+    const isPartner = target === 'partner'
+
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+
+    if (!serviceId || !templateId || !publicKey) {
+      toast.error('Email is not configured yet (missing EmailJS keys).')
+      return
+    }
+
+    const toEmail = isPartner ? (partner?.email ?? '') : (user.email ?? '')
+    const toName = isPartner
+      ? (partner?.name || partner?.email || 'Partner')
+      : (user.displayName || user.email || 'Friend')
+
+    if (!toEmail) {
+      toast.error(isPartner ? 'No partner email found yet.' : 'No email found for your account.')
+      return
+    }
+
+    const taskList =
+      visibleTasks.length === 0
+        ? 'No tasks in this view.'
+        : visibleTasks
+            .map((t) => `${t.completed ? '[x]' : '[ ]'} ${t.title} — ${t.date}${t.time ? ` ${t.time}` : ''}`)
+            .join('\n')
+
+    setEmailSendingTo(isPartner ? 'partner' : 'me')
+    try {
+      await emailjs.send(
+        serviceId,
+        templateId,
+        {
+          to_email: toEmail,
+          name: toName,
+          task_list: taskList,
+        },
+        { publicKey },
+      )
+      toast.success(isPartner ? 'Tasks emailed to partner!' : 'Tasks emailed!')
+    } catch (e) {
+      toast.error(e?.message ? String(e.message) : 'Could not send email.')
+    }
+    setEmailSendingTo(null)
+  }
+
   // Render
 
   const completedToday = tasks.filter((t) => t.date === today && t.completed).length
@@ -451,6 +553,34 @@ export default function Tasks() {
               {mode}
             </button>
           ))}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => handleEmailTasks('me')}
+            disabled={emailSendingTo != null}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50"
+            title="Email the tasks in your current view to you"
+          >
+            <MailIcon />
+            {emailSendingTo === 'me' ? 'Sending...' : 'Email Me'}
+          </button>
+
+          <button
+            onClick={() => handleEmailTasks('partner')}
+            disabled={emailSendingTo != null || partnerStatus === 'loading' || !partner?.email}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50"
+            title={
+              partnerStatus === 'loading'
+                ? 'Finding partner...'
+                : partner?.email
+                  ? 'Email the tasks in your current view to your partner'
+                  : 'No partner connected yet'
+            }
+          >
+            <MailIcon />
+            {emailSendingTo === 'partner' ? 'Sending...' : 'Email Partner'}
+          </button>
         </div>
       </header>
 

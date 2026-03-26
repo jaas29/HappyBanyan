@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { db } from '../firebase/config'
-import { collection, addDoc, query, where, getDocs, serverTimestamp } from 'firebase/firestore'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 
 const moods = [
   { key: 'sad',     emoji: '😢', label: 'Not great',  bg: '#FEE2E2', border: '#F87171', text: '#B91C1C' },

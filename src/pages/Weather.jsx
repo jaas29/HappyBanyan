@@ -7,19 +7,22 @@ export default function Weather() {
   const navigate = useNavigate()
   const [activeCityId, setActiveCityId] = useState('sarasota')
 
-  const weatherCities = [
-    { id: 'sarasota', name: 'Sarasota, FL', lat: 27.3365805, lon: -82.5308545 },
-    { id: 'thousand-oaks', name: 'Thousand Oaks, CA', lat: 34.1705609, lon: -118.8375937 },
-  ]
+  const weatherCities = useMemo(
+    () => [
+      { id: 'sarasota', name: 'Sarasota, FL', lat: 27.3365805, lon: -82.5308545 },
+      { id: 'thousand-oaks', name: 'Thousand Oaks, CA', lat: 34.1705609, lon: -118.8375937 },
+    ],
+    [],
+  )
 
   const activeCities = useMemo(
     () => weatherCities.filter((c) => c.id === activeCityId),
-    [activeCityId],
+    [activeCityId, weatherCities],
   )
 
   const activeCity = useMemo(
     () => weatherCities.find((c) => c.id === activeCityId) ?? null,
-    [activeCityId],
+    [activeCityId, weatherCities],
   )
 
   return (

@@ -111,7 +111,7 @@ export default function Messages() {
     const conversationId = ids.join('_')
 
     try {
-      const docRef = await addDoc(collection(db, 'messages'), {
+      await addDoc(collection(db, 'messages'), {
         conversationId,
         senderId: user.uid,
         senderName: user.displayName || 'Me',
