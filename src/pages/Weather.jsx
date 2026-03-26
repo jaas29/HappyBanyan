@@ -3,6 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import WeatherPanel from '../components/WeatherPanel'
 import WeatherFeatured from '../components/WeatherFeatured'
 
+const BackIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="15 18 9 12 15 6" />
+  </svg>
+)
+
 export default function Weather() {
   const navigate = useNavigate()
   const [activeCityId, setActiveCityId] = useState('sarasota')
@@ -27,18 +33,19 @@ export default function Weather() {
 
   return (
     <div className="min-h-screen bg-[#FFF8F0] flex flex-col">
-      <header className="flex items-center justify-between px-8 py-4 bg-white border-b border-gray-200">
+      <header className="flex items-center gap-4 px-8 py-4 bg-white border-b border-gray-200">
+        <button
+          onClick={() => navigate('/')}
+          className="flex items-center gap-1 text-gray-500 hover:text-gray-800 transition-colors font-medium"
+        >
+          <BackIcon />
+          <span className="text-base">Dashboard</span>
+        </button>
+        <div className="w-px h-6 bg-gray-200" />
         <div className="flex items-center gap-4">
           <h1 className="text-2xl font-bold text-gray-900">Weather</h1>
           <span className="text-sm text-gray-500">Daily forecast</span>
         </div>
-
-        <button
-          onClick={() => navigate('/')}
-          className="px-4 py-2 rounded-xl bg-[#7C3AED] text-white font-semibold hover:bg-[#6D28D9] transition-colors"
-        >
-          Back to Dashboard
-        </button>
       </header>
 
       <main className="flex-1 px-4 py-8">

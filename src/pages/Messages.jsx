@@ -170,9 +170,14 @@ export default function Messages() {
     return (
       <div className="h-screen bg-[#FFF8F0] flex flex-col">
         <header className="flex items-center gap-4 px-6 py-4 bg-white border-b border-gray-200">
-          <button onClick={() => navigate('/')} className="text-gray-500 hover:text-gray-700">
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-1 text-gray-500 hover:text-gray-800 transition-colors font-medium"
+          >
             <BackIcon />
+            <span className="text-base">Dashboard</span>
           </button>
+          <div className="w-px h-6 bg-gray-200" />
           <h1 className="text-xl font-bold text-gray-900">Messages</h1>
         </header>
         <div className="flex-1 flex items-center justify-center px-8">
@@ -193,9 +198,15 @@ export default function Messages() {
 
       {/* Header */}
       <header className="flex items-center gap-4 px-6 py-4 bg-white border-b border-gray-200 shrink-0">
-        <button onClick={() => navigate('/')} className="text-gray-500 hover:text-gray-700">
+        <button
+          onClick={() => navigate('/')}
+          className="flex items-center gap-1 text-gray-500 hover:text-gray-800 transition-colors font-medium"
+        >
           <BackIcon />
+          <span className="text-base">Dashboard</span>
         </button>
+        <div className="w-px h-6 bg-gray-200" />
+        <h1 className="text-xl font-bold text-gray-900">Messages</h1>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-[#7C3AED] flex items-center justify-center text-white font-bold text-lg">
             {partner.name?.[0]?.toUpperCase() || '?'}

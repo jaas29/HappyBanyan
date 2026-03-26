@@ -168,11 +168,12 @@ export default function SharedTasks() {
       <header className="flex items-center gap-4 px-8 py-4 bg-white border-b border-gray-200 shrink-0">
         <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-1 text-gray-500 hover:text-gray-800 transition-colors"
+          className="flex items-center gap-1 text-gray-500 hover:text-gray-800 transition-colors font-medium"
         >
           <BackIcon />
-          <span className="text-base font-medium">Back</span>
+          <span className="text-base">Dashboard</span>
         </button>
+        <div className="w-px h-6 bg-gray-200" />
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Shared Tasks</h1>
           {partner && (
