@@ -135,7 +135,7 @@ const navItems = [
   { label: 'Home',     Icon: HomeNavIcon,     active: true,  path: '/'         },
   { label: 'Messages', Icon: MsgNavIcon,      active: false, path: '/messages' },
   { label: 'Tasks',    Icon: TasksNavIcon,    active: false, path: '/tasks'    },
-  { label: 'Settings', Icon: SettingsNavIcon, active: false, path: null        },
+  { label: 'Settings', Icon: SettingsNavIcon, active: false, path: '/settings' },
 ]
 
 // Dashboard

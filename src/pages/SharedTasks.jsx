@@ -191,8 +191,19 @@ export default function SharedTasks() {
         )}
 
         {!loading && !partner && (
-          <div className="text-center pt-16 text-gray-400 text-lg">
-            No partner connected yet.
+          <div className="text-center pt-16 space-y-3">
+            <p className="text-lg text-gray-500">No partner connected yet.</p>
+            <p className="text-sm text-gray-500">
+              Make sure you and your partner are using the same <strong>family code</strong>.
+            </p>
+            <div className="pt-2">
+              <button
+                onClick={() => navigate('/settings')}
+                className="px-6 py-3 rounded-xl bg-[#7C3AED] text-white font-semibold hover:bg-[#6D28D9] transition-colors"
+              >
+                Go to Settings
+              </button>
+            </div>
           </div>
         )}
 

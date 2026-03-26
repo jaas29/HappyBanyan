@@ -6,6 +6,7 @@ import Tasks from './pages/Tasks'
 import Messages from './pages/Messages'
 import QuickLinks from './pages/QuickLinks'
 import SharedTasks from './pages/SharedTasks'
+import Settings from './pages/Settings'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
@@ -70,6 +71,15 @@ function App() {
           element={
             <ProtectedRoute>
               <SharedTasks />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
             </ProtectedRoute>
           }
         />

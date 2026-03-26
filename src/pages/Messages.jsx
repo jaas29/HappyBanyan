@@ -186,6 +186,14 @@ export default function Messages() {
             <p className="text-lg text-gray-500">
               Ask your family member to sign up with the same <strong>family code</strong> you used during registration.
             </p>
+            <div className="pt-3">
+              <button
+                onClick={() => navigate('/settings')}
+                className="px-6 py-3 rounded-xl bg-[#7C3AED] text-white font-semibold hover:bg-[#6D28D9] transition-colors"
+              >
+                Go to Settings
+              </button>
+            </div>
           </div>
         </div>
       </div>
