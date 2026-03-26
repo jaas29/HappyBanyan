@@ -492,11 +492,31 @@ export default function Tasks() {
       return
     }
 
-    const taskList =
+    const completedCount = visibleTasks.filter((t) => t.completed).length
+    const dateRangeLabel =
+      viewMode === 'daily'
+        ? formatDate(today)
+        : `${formatDate(week[0])} – ${formatDate(week[week.length - 1])}`
+
+    const viewTitle = viewMode === 'daily' ? "Today's Tasks" : "This Week's Tasks"
+    const viewSubtitle = `${dateRangeLabel} • ${visibleTasks.length} total • ${completedCount} completed`
+
+    const tasksForEmail = visibleTasks.map((t) => {
+      const timeLabel = formatTime(t.time)
+      const meta = `${formatDate(t.date)}${timeLabel ? ` • ${timeLabel}` : ''} • ${t.completed ? 'Completed' : 'Open'}`
+      return {
+        status_icon: t.completed ? '✅' : '⬜',
+        title: t.title,
+        meta,
+        description: (t.description ?? '').trim(),
+      }
+    })
+
+    const taskListPlain =
       visibleTasks.length === 0
         ? 'No tasks in this view.'
         : visibleTasks
-            .map((t) => `${t.completed ? '[x]' : '[ ]'} ${t.title} — ${t.date}${t.time ? ` ${t.time}` : ''}`)
+            .map((t) => `${t.completed ? '[x]' : '[ ]'} ${t.title} — ${formatDate(t.date)}${t.time ? ` ${formatTime(t.time)}` : ''}`)
             .join('\n')
 
     setEmailSendingTo(isPartner ? 'partner' : 'me')
@@ -507,7 +527,12 @@ export default function Tasks() {
         {
           to_email: toEmail,
           name: toName,
-          task_list: taskList,
+          view_title: viewTitle,
+          view_subtitle: viewSubtitle,
+          has_tasks: visibleTasks.length > 0,
+          tasks: tasksForEmail,
+          // optional fallback if you use a plain-text part in EmailJS
+          task_list: taskListPlain,
         },
         { publicKey },
       )
