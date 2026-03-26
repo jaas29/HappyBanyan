@@ -10,6 +10,8 @@
 
 A family wellness app that helps elderly users and their caretakers stay connected, manage daily tasks, and track well-being through a gamified growing Banyan tree metaphor.
 
+**Live URL:** https://happy-banyan.vercel.app
+
 ## Features
 
 - **Virtual Banyan Tree** — Grows through 4 stages as you complete tasks, providing visual motivation
@@ -129,6 +131,75 @@ Completing tasks increments a counter on the user's profile. The Banyan tree adv
 | Growing Banyan | 16–30 |
 | Full Banyan | 31+ |
 
+
+## Contributions
+
+**Jose Araya:** Firebase setup, authentication (Login, Register, ForgotPassword), routing logic, real-time messaging, Banyan tree growth system, dashboard redesign, sidebar navigation
+
+**Sebastian Rodriguez:** Dashboard visual design, Quick Links page, Shared Tasks feature, README documentation
+
+**Darius Beckford:** Weather feature with city selection and forecast display, email tasks via EmailJS, Settings page for partner connection, back-to-dashboard button consistency
+
+**Bruno Valdez:** Daily check-in modal with mood selection, task management system, file uploads and asset management
+
+**Hugo Cruz:** Background music toggle, Cheer Me Up popup, logo and brand assets, UI polish
+
+## System Modeling
+
+### Structural Model: Component Diagram (UML)
+
+Shows all React components, Firebase services, and external APIs that make up the system.
+
+![Component Diagram](docs/component-diagram.jpeg)
+
+### Behavioral Model: Sequence Diagram - Task Completion and Tree Growth
+
+Shows the full flow when a user completes a task and the Banyan tree updates in real time.
+
+![Sequence Diagram](docs/sequence-diagram.jpeg)
+
+### State Diagram - Caretaker Viewing Partner's Data
+
+Shows the states Emma (caretaker) goes through when accessing Olivia's (elder) tasks via the Shared Tasks feature.
+
+![State Diagram](docs/state-diagram.jpeg)
+
+## System Architecture
+
+```
++--------------------------------------------------+
+|                  Frontend (React 19 + Vite)       |
+|                                                    |
+|  App.jsx (Router + Music Toggle)                   |
+|    |                                               |
+|    +-- Public: Login, Register, ForgotPassword     |
+|    |                                               |
+|    +-- Protected (via ProtectedRoute):             |
+|        +-- Dashboard                               |
+|        |     +-- DailyCheckIn (mood tracker)       |
+|        |     +-- CheerMeUpPopup (motivational)     |
+|        +-- Tasks                                   |
+|        |     +-- TaskCard, TaskModal               |
+|        +-- Messages (real-time chat)               |
+|        +-- SharedTasks (partner's tasks)           |
+|        +-- Weather                                 |
+|        |     +-- WeatherFeatured (current+hourly)  |
+|        |     +-- WeatherPanel (5-day forecast)     |
+|        +-- QuickLinks                              |
+|        +-- Settings (family code management)       |
++--------------------------------------------------+
+         |              |              |
+         v              v              v
++----------------+ +----------+ +-----------+
+| Firebase       | | EmailJS  | | OpenWeather|
+| - Auth         | | (email   | | API        |
+| - Firestore    | |  tasks)  | | (weather)  |
+|   - users      | +----------+ +-----------+
+|   - tasks      |
+|   - messages   |
+|   - checkIns   |
++----------------+
+```
 
 ## Project Structure
 
