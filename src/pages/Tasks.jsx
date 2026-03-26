@@ -306,7 +306,7 @@ export default function Tasks() {
   const [saving, setSaving] = useState(false)
   const [emailSendingTo, setEmailSendingTo] = useState(null) // null | 'me' | 'partner'
 
-  const [partner, setPartner] = useState(null)
+  const [partners, setPartners] = useState([])
   const [partnerStatus, setPartnerStatus] = useState('idle') // 'idle' | 'loading' | 'done'
 
   // Real-time Firestore listener
@@ -336,12 +336,12 @@ export default function Tasks() {
 
     async function run() {
       if (!user) {
-        setPartner(null)
+        setPartners([])
         setPartnerStatus('idle')
         return
       }
 
-      setPartner(null)
+      setPartners([])
       setPartnerStatus('loading')
 
       try {
@@ -352,9 +352,12 @@ export default function Tasks() {
         if (!familyCode) return
 
         const snap = await getDocs(query(collection(db, 'users'), where('familyCode', '==', familyCode)))
-        const partnerDoc = snap.docs.find((d) => d.id !== user.uid)
-        if (partnerDoc && !cancelled) {
-          setPartner({ uid: partnerDoc.id, ...partnerDoc.data() })
+        const partnerDocs = snap.docs
+          .filter((d) => d.id !== user.uid)
+          .map((d) => ({ uid: d.id, ...d.data() }))
+
+        if (!cancelled) {
+          setPartners(partnerDocs)
         }
       } catch (e) {
         console.error('Partner lookup failed:', e)
@@ -482,13 +485,17 @@ export default function Tasks() {
       return
     }
 
-    const toEmail = isPartner ? (partner?.email ?? '') : (user.email ?? '')
-    const toName = isPartner
-      ? (partner?.name || partner?.email || 'Partner')
-      : (user.displayName || user.email || 'Friend')
+    const toEmail = user.email ?? ''
+    const toName = user.displayName || user.email || 'Friend'
 
-    if (!toEmail) {
-      toast.error(isPartner ? 'No partner email found yet.' : 'No email found for your account.')
+    if (!isPartner && !toEmail) {
+      toast.error('No email found for your account.')
+      return
+    }
+
+    const partnerRecipients = partners.filter((p) => Boolean(p?.email))
+    if (isPartner && partnerRecipients.length === 0) {
+      toast.error('No partner email found yet.')
       return
     }
 
@@ -521,27 +528,65 @@ export default function Tasks() {
 
     setEmailSendingTo(isPartner ? 'partner' : 'me')
     try {
-      await emailjs.send(
-        serviceId,
-        templateId,
-        {
-          to_email: toEmail,
-          name: toName,
-          view_title: viewTitle,
-          view_subtitle: viewSubtitle,
-          has_tasks: visibleTasks.length > 0,
-          tasks: tasksForEmail,
-          // optional fallback if you use a plain-text part in EmailJS
-          task_list: taskListPlain,
-        },
-        { publicKey },
-      )
-      toast.success(isPartner ? 'Tasks emailed to partner!' : 'Tasks emailed!')
-    } catch (e) {
-      toast.error(e?.message ? String(e.message) : 'Could not send email.')
+      if (!isPartner) {
+        await emailjs.send(
+          serviceId,
+          templateId,
+          {
+            to_email: toEmail,
+            name: toName,
+            view_title: viewTitle,
+            view_subtitle: viewSubtitle,
+            has_tasks: visibleTasks.length > 0,
+            tasks: tasksForEmail,
+            // optional fallback if you use a plain-text part in EmailJS
+            task_list: taskListPlain,
+          },
+          { publicKey },
+        )
+        toast.success('Tasks emailed!')
+        return
+      }
+
+      let sentCount = 0
+      const failed = []
+
+      for (const recipient of partnerRecipients) {
+        try {
+          await emailjs.send(
+            serviceId,
+            templateId,
+            {
+              to_email: recipient.email,
+              name: recipient.name || recipient.email || 'Partner',
+              view_title: viewTitle,
+              view_subtitle: viewSubtitle,
+              has_tasks: visibleTasks.length > 0,
+              tasks: tasksForEmail,
+              task_list: taskListPlain,
+            },
+            { publicKey },
+          )
+          sentCount += 1
+        } catch (e) {
+          failed.push(recipient.email)
+          console.error('Could not email partner:', recipient.email, e)
+        }
+      }
+
+      if (sentCount > 0 && failed.length === 0) {
+        toast.success(`Tasks emailed to ${sentCount} partner${sentCount === 1 ? '' : 's'}!`)
+      } else if (sentCount > 0) {
+        toast(`Emailed ${sentCount} partner${sentCount === 1 ? '' : 's'}. Failed: ${failed.length}.`)
+      } else {
+        toast.error('Could not send email to any partner.')
+      }
+    } finally {
+      setEmailSendingTo(null)
     }
-    setEmailSendingTo(null)
   }
+
+  const partnersWithEmailCount = partners.filter((p) => Boolean(p?.email)).length
 
   // Render
 
@@ -593,18 +638,18 @@ export default function Tasks() {
 
           <button
             onClick={() => handleEmailTasks('partner')}
-            disabled={emailSendingTo != null || partnerStatus === 'loading' || !partner?.email}
+            disabled={emailSendingTo != null || partnerStatus === 'loading' || partnersWithEmailCount === 0}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50"
             title={
               partnerStatus === 'loading'
                 ? 'Finding partner...'
-                : partner?.email
-                  ? 'Email the tasks in your current view to your partner'
+                : partnersWithEmailCount > 0
+                  ? `Email the tasks in your current view to your ${partnersWithEmailCount === 1 ? 'partner' : 'partners'}`
                   : 'No partner connected yet'
             }
           >
             <MailIcon />
-            {emailSendingTo === 'partner' ? 'Sending...' : 'Email Partner'}
+            {emailSendingTo === 'partner' ? 'Sending...' : 'Email Partners'}
           </button>
         </div>
       </header>
