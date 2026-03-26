@@ -13,18 +13,39 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
 
-// import your music
+// music
 import bgMusic from './assets/music/backgroundmusic.mp3'
+
+// 🔊 Volume ON icon
+const VolumeOnIcon = () => (
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+    <path d="M19 5a7 7 0 0 1 0 14" />
+    <path d="M15 9a3 3 0 0 1 0 6" />
+  </svg>
+)
+
+// 🔇 Volume OFF icon
+const VolumeOffIcon = () => (
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+    <line x1="23" y1="9" x2="17" y2="15" />
+    <line x1="17" y1="9" x2="23" y2="15" />
+  </svg>
+)
 
 function App() {
   const audioRef = useRef(null)
-  const [started, setStarted] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
 
-  const startMusic = () => {
-    if (!started) {
-      audioRef.current.volume = 0.2 // nice low background volume
+  const toggleMusic = () => {
+    if (!isPlaying) {
+      audioRef.current.volume = 0.2
       audioRef.current.play()
-      setStarted(true)
+      setIsPlaying(true)
+    } else {
+      audioRef.current.pause()
+      setIsPlaying(false)
     }
   }
 
@@ -36,15 +57,13 @@ function App() {
         <source src={bgMusic} type="audio/mpeg" />
       </audio>
 
-      {/* Start music button (required for autoplay rules) */}
-      {!started && (
-        <button
-          onClick={startMusic}
-          className="fixed bottom-4 right-4 bg-black text-white px-4 py-2 rounded-lg shadow-lg z-50"
-        >
-          Enable Music
-        </button>
-      )}
+      {/* 🔊 Bottom-left toggle button */}
+      <button
+        onClick={toggleMusic}
+        className="fixed bottom-4 left-4 bg-black/80 hover:bg-black text-white p-3 rounded-full shadow-lg z-50 transition-all active:scale-95"
+      >
+        {isPlaying ? <VolumeOnIcon /> : <VolumeOffIcon />}
+      </button>
 
       <Routes>
         {/* Public routes */}
@@ -116,7 +135,7 @@ function App() {
           }
         />
 
-        {/* Catch-all redirect */}
+        {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
