@@ -1,3 +1,11 @@
+## Team
+
+- Hugo Cruz
+- Jose Araya
+- Sebastian Rodriguez
+- Bruno Valdez
+- Darius Beckford
+
 # Happy Banyan
 
 A family wellness app that helps elderly users and their caretakers stay connected, manage daily tasks, and track well-being through a gamified growing Banyan tree metaphor.
@@ -28,6 +36,20 @@ A family wellness app that helps elderly users and their caretakers stay connect
 | PDF | jsPDF |
 | Notifications | React Hot Toast |
 | Prototyping | Figma |
+
+## References
+
+- [React](https://react.dev/) — Frontend UI library
+- [React Router DOM](https://reactrouter.com/) — Client-side routing
+- [Vite](https://vitejs.dev/) — Build tool and development server
+- [Firebase](https://firebase.google.com/docs) — Authentication and Firestore database
+- [Tailwind CSS](https://tailwindcss.com/) — Utility-first CSS framework
+- [Howler.js](https://howlerjs.com/) — Audio playback library
+- [EmailJS](https://www.emailjs.com/docs/) — Client-side email sending
+- [OpenWeatherMap API](https://openweathermap.org/api) — Real-time weather data
+- [jsPDF](https://github.com/parallax/jsPDF) — PDF generation in the browser
+- [React Hot Toast](https://react-hot-toast.com/) — Toast notifications
+- [Figma](https://www.figma.com/) — UI/UX prototyping and design
 
 ## Getting Started
 
@@ -106,13 +128,6 @@ Completing tasks increments a counter on the user's profile. The Banyan tree adv
 | Growing Banyan | 16–30 |
 | Full Banyan | 31+ |
 
-## Team
-
-- Hugo Cruz
-- Jose Araya
-- Sebastian Rodriguez
-- Bruno Valdez
-- Darius Beckford
 
 ## Project Structure
 
