@@ -1,10 +1,20 @@
 import { useState, useEffect } from 'react'
+
+const GREETINGS = [
+  "Hello, ",
+  "Welcome back, ",
+  "Good to see you, ",
+  "Hey there, ",
+  "Howdy, ",
+]
+
 import { signOut } from 'firebase/auth'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth, db } from '../firebase/config'
 import { collection, query, where, getDocs, doc, onSnapshot } from 'firebase/firestore'
 import { useNavigate } from 'react-router-dom'
 import DailyCheckIn from '../components/DailyCheckIn'
+import CheerMeUpPopup from '../components/CheerMeUpPopup'
 
 import treeSprout from '../assets/tree/stage1-sprout.png'
 import treeYoung from '../assets/tree/stage2-young.png'
@@ -145,6 +155,12 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const [showCheckIn, setShowCheckIn] = useState(false)
   const [completedTasks, setCompletedTasks] = useState(0)
+  const [currentGreeting, setCurrentGreeting] = useState("")
+
+  useEffect(() => {
+    const randomGreeting = GREETINGS[Math.floor(Math.random() * GREETINGS.length)]
+    setCurrentGreeting(randomGreeting)
+  }, [])
 
   // Real-time listener for completedTasks count
   useEffect(() => {
@@ -187,10 +203,10 @@ export default function Dashboard() {
       {/* ── Top Header ── */}
       <header className="flex items-center justify-between px-8 py-4 bg-white border-b border-gray-200 shrink-0">
         <div className="flex items-center gap-3">
-          <span className="text-2xl font-bold text-gray-900">Happy Banyan</span>
+          <span className="text-2xl font-bold text-gray-900 logo-text">Happy Banyan</span>
         </div>
         <span className="text-2xl font-semibold text-gray-700">
-          Hi, {user?.displayName || user?.email || 'Friend'}!
+          {currentGreeting}{user?.displayName || user?.email || 'Friend'}!
         </span>
         <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-500 font-medium">
           <LogoutIcon />
@@ -262,25 +278,46 @@ export default function Dashboard() {
 
           {/* Feature Tiles */}
           <div className="grid grid-cols-3 gap-4">
-            {tiles.map(({ label, color, Icon }) => (
-              <button
-                key={label}
-                onClick={() => {
-                  if (label === 'Messages') navigate('/messages')
-                  if (label === 'Weather') navigate('/weather')
-                  if (label === 'My Tasks') navigate('/tasks')
-                  if (label === 'Quick Links') navigate('/quick-links')
-                  if (label === 'Shared Tasks') navigate('/shared-tasks')
-                }}
-                style={{ backgroundColor: color }}
-                className="rounded-2xl py-6 flex flex-col items-center justify-center gap-3 cursor-pointer hover:opacity-90 active:scale-95 transition-all"
-              >
-                <Icon />
-                <span className="text-white font-bold text-lg text-center leading-snug px-2">
-                  {label}
-                </span>
-              </button>
-            ))}
+            {tiles.map(({ label, color, Icon }) => {
+              if (label === 'Cheer Me Up!') {
+                return (
+                  <div
+                    key={label}
+                    style={{ backgroundColor: color }}
+                    className="rounded-2xl py-6 flex flex-col items-center justify-center gap-3 relative"
+                  >
+                    <Icon />
+                    <span className="text-white font-bold text-lg text-center">
+                      {label}
+                    </span>
+              
+                    {/* invisible overlay click */}
+                    <div className="absolute inset-0">
+                      <CheerMeUpPopup />
+                    </div>
+                  </div>
+                )
+              }
+              return (
+                <button
+                  key={label}
+                  onClick={() => {
+                    if (label === 'Messages') navigate('/messages')
+                    if (label === 'Weather') navigate('/weather')
+                    if (label === 'My Tasks') navigate('/tasks')
+                    if (label === 'Quick Links') navigate('/quick-links')
+                    if (label === 'Shared Tasks') navigate('/shared-tasks')
+                  }}
+                  style={{ backgroundColor: color }}
+                  className="rounded-2xl py-6 flex flex-col items-center justify-center gap-3 cursor-pointer hover:opacity-90 active:scale-95 transition-all"
+                >
+                  <Icon />
+                  <span className="text-white font-bold text-lg text-center leading-snug px-2">
+                    {label}
+                  </span>
+                </button>
+              )
+            })}
           </div>
 
 
