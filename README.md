@@ -50,6 +50,7 @@ A family wellness app that helps elderly users and their caretakers stay connect
 - [jsPDF](https://github.com/parallax/jsPDF) — PDF generation in the browser
 - [React Hot Toast](https://react-hot-toast.com/) — Toast notifications
 - [Figma](https://www.figma.com/) — UI/UX prototyping and design
+- [ChatGPT](https://openai.com/chatgpt) — Tree stage images generated via ChatGPT
 
 ## Getting Started
 
